@@ -1,34 +1,6 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: fleetman-webapp
-
-spec:
-  # This defines which pods are going to be represented by this Service.
-  # The service becomes a network endpoint for either other services
-  # or maybe external external users to connect to (eg browser)
-  selector:
-    app: webapp
-    release: "0-5"
-
-  ports:
-    - name: http
-      # exposes the Kubernetes service on the specified port within the cluster.
-      # Other pods within the cluster can communicate with this server on the specified port.
-      port: 80
-      # is the port on which the service will send requests to, that your pod will be listening on.
-      # Your application in the container will need to be listening on this port also.
-      targetPort: 80
-      # exposes a service externally to the cluster by means of the target nodes IP address and the NodePort.
-      # NodePort is the default setting if the port field is not specified.
-      nodePort: 30080
-
-  type: NodePort
-
----
-apiVersion: v1
-kind: Service
-metadata:
   name: fleetman-queue
 
 spec:
@@ -36,9 +8,65 @@ spec:
     app: queue
 
   ports:
-    - name: console
+    - name: http
       port: 8161
-      targetPort: 8161
       nodePort: 30010
 
+    - name: endpoint
+      port: 61616
+      # This port will not be opened to outside the cluster, so no nodePort needed here
+
+  # This Service is NodePort so that we can access the admin console (http) from the browser (outside of the cluster)
+  type: NodePort
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleetman-position-tracker
+
+spec:
+  selector:
+    app: position-tracker
+
+  ports:
+    - name: http
+      port: 8080
+
+  # We use ClusterIP because this service will be accessed from inside the cluster, the gateway service
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleetman-api-gateway
+
+spec:
+  selector:
+    app: api-gateway
+
+  ports:
+    - name: http
+      port: 8080
+
+  # We use ClusterIP because this service will be accessed from inside the cluster, the webapp
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleetman-webapp
+
+spec:
+  selector:
+    app: webapp
+
+  ports:
+    - name: http
+      port: 80
+      nodePort: 30080
+
+  # This Service is NodePort so that we can access the webapp through the browser
   type: NodePort
