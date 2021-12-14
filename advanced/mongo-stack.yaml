@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+spec:
+  selector:
+    matchLabels:
+      app: mongodb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo:3.6.5-jessie
+          resources:
+            # requests are an indicator for the scheduler on the resources we think are suitable for our containers
+            # this does NOT limit the resources that the container can use.
+            requests:
+              memory: 500Mi
+              cpu: 500m
+          volumeMounts:
+            - name: mongo-persistent-storage
+              # Path inside the container that contains the data to be persisted
+              # /data/db is the default path where mongo stores the data
+              mountPath: /data/db
+      volumes:
+        - name: mongo-persistent-storage
+          # Pointer to the configuration of HOW we want the mount to be implemented
+          persistentVolumeClaim:
+            claimName: mongo-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fleetman-mongodb
+spec:
+  selector:
+    app: mongodb
+  ports:
+    - name: mongoport
+      port: 27017
+  type: ClusterIP
