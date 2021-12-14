@@ -87,7 +87,7 @@ spec:
   selector:
     matchLabels:
       app: api-gateway
-  replicas: 1
+  replicas: 3
   template:
     metadata:
       labels:
@@ -105,6 +105,10 @@ spec:
             requests:
               memory: 300Mi
               cpu: 50m
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
 
 ---
 apiVersion: apps/v1
