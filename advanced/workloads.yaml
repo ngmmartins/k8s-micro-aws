@@ -43,6 +43,10 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: production-microservice
+          # This configMap is just an example. It is not used by this container.
+          envFrom:
+            - configMapRef:
+                name: global-database-config
           resources:
             # requests are an indicator for the scheduler on the resources we think are suitable for our containers
             # this does NOT limit the resources that the container can use.
@@ -87,7 +91,7 @@ spec:
   selector:
     matchLabels:
       app: api-gateway
-  replicas: 3
+  replicas: 1
   template:
     metadata:
       labels:

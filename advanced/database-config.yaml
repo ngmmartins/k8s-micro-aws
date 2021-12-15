@@ -1,0 +1,9 @@
+# This ConfigMap is just an example. It's values are not used by any container
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: global-database-config
+  namespace: default
+data:
+  DATABASE_URL: https://mysqlserver.com:3306
+  DATABASE_PASSWORD: P@SSW0rd1
